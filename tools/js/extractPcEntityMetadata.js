@@ -9,7 +9,7 @@ const { globSync } = require('glob')
  * @returns {string[]}
  */
 function prepLines (raw) {
-  const lines = raw.replaceAll(' {\n', ' {;\n').split(';')
+  const lines = raw.replaceAll('\r\n', '\n').replaceAll(' {\n', ' {;\n').split(';')
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim()
     if (line.includes('static final') && !line.includes(' = ')) {
@@ -32,10 +32,17 @@ function prepLines (raw) {
  * @returns {[Record<string,string>, Record<string,string>]}
  */
 function getEntityTypes (versionDir) {
-  const entityTypes = fs.readFileSync(`${versionDir}/client/net/minecraft/world/entity/EntityType.java`, 'utf8')
-  const entityTypesLines = prepLines(entityTypes)
   const classNameTo = {}
   const nameToClass = {}
+
+  // Up to 26.1 the registry declarations live in EntityType.java and use
+  // register("name", ...). Starting with 26.2 Mojang split the declarations
+  // into EntityTypes.java and the registry keys into EntityTypeIds.java.
+  const entityTypePath = `${versionDir}/client/net/minecraft/world/entity/EntityType.java`
+  const entityTypesPath = `${versionDir}/client/net/minecraft/world/entity/EntityTypes.java`
+  const entityTypeIdsPath = `${versionDir}/client/net/minecraft/world/entity/EntityTypeIds.java`
+  const entityTypes = fs.readFileSync(entityTypePath, 'utf8')
+  const entityTypesLines = prepLines(entityTypes)
   for (const line of entityTypesLines) {
     if (line.includes('= register(')) {
       // Given the line: public static final EntityType<Allay> ALLAY = register( "allay", EntityType.Builder.<Allay>of(Allay::new, MobCategory.CREATURE).sized(0.35F, 0.6F).clientTrackingRange(8).updateInterval(2) );
@@ -48,6 +55,23 @@ function getEntityTypes (versionDir) {
       }
     }
   }
+
+  if (Object.keys(classNameTo).length === 0 && fs.existsSync(entityTypesPath)) {
+    const declarations = fs.readFileSync(entityTypesPath, 'utf8')
+    const ids = fs.existsSync(entityTypeIdsPath) ? fs.readFileSync(entityTypeIdsPath, 'utf8') : ''
+    const namesByField = {}
+    for (const match of ids.matchAll(/public static final ResourceKey<EntityType<\?>\s+([A-Z0-9_]+)\s*=\s*create\("([a-z0-9_]+)"\)/g)) {
+      namesByField[match[1]] = match[2]
+    }
+
+    for (const match of declarations.matchAll(/public static final EntityType<([^>]+)>\s+([A-Z0-9_]+)\s*;/g)) {
+      const [, type, field] = match
+      const name = namesByField[field] || field.toLowerCase()
+      classNameTo[type] = name
+      nameToClass[name] = type
+    }
+  }
+
   return [classNameTo, nameToClass]
 }
 
@@ -133,7 +157,7 @@ function extractPcEntityMetadata (version, mcdataVersion = version, opts = {}) {
       if (line.match(/SynchedEntityData\..*defineId\(/)) {
         // from:    private static final EntityDataAccessor<Sniffer.State> DATA_STATE = SynchedEntityData.defineId(Sniffer.class, EntityDataSerializers.SNIFFER_STATE);
         // extract: DATA_STATE, SNIFFER_STATE
-        const r = line.match(/> ([A-Z_0-9]+) = .*EntityDataSerializers.([A-Z_0-9]+)/s)
+        const r = line.match(/\b([A-Z_][A-Z0-9_]*)\s*=\s*.*?EntityDataSerializers\.([A-Z_0-9]+)/s)
         if (r) {
           const [, data, serializer] = r
           ; (metadatas[lastClass] ??= []).push([data, serializer])

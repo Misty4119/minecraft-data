@@ -1144,6 +1144,14 @@
     ]
   },
   {
+    "name": "teamPacketUsesOptionalColor",
+    "description": "the 26.2 teams packet uses display components, optional color, and a trailing flags byte",
+    "versions": [
+      "26.2",
+      "26.2"
+    ]
+  },
+  {
     "name": "teamUsesChatComponents",
     "description": "teams use chatcomponents for formatting",
     "versions": [
@@ -1281,6 +1289,14 @@
     "versions": [
       "1.19.3",
       "latest"
+    ]
+  },
+  {
+    "name": "useEntityUsesSecondaryAction",
+    "description": "the 26.2 use_entity packet names its sneak interaction flag usingSecondaryAction",
+    "versions": [
+      "26.2",
+      "26.2"
     ]
   },
   {
