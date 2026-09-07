@@ -11848,6 +11848,7 @@
                     "update_command_block": "packet_update_command_block",
                     "update_command_block_minecart": "packet_update_command_block_minecart",
                     "set_creative_slot": "packet_set_creative_slot",
+                    "set_game_rule": "packet_set_game_rule",
                     "update_jigsaw_block": "packet_update_jigsaw_block",
                     "update_structure_block": "packet_update_structure_block",
                     "set_test_block": "packet_set_test_block",

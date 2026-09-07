@@ -3852,6 +3852,7 @@
          if update_command_block: packet_update_command_block
          if update_command_block_minecart: packet_update_command_block_minecart
          if set_creative_slot: packet_set_creative_slot
+         if set_game_rule: packet_set_game_rule
          if update_jigsaw_block: packet_update_jigsaw_block
          if update_structure_block: packet_update_structure_block
          if set_test_block: packet_set_test_block

@@ -237,6 +237,14 @@
     ]
   },
   {
+    "name": "customNameComponentIsPlainText",
+    "description": "the custom_name item component is returned as a plain NBT string",
+    "versions": [
+      "26.2",
+      "26.2"
+    ]
+  },
+  {
     "name": "difficultySentSeparately",
     "description": "game difficulty is sent separately from the login packet",
     "versions": [
@@ -705,6 +713,14 @@
     ]
   },
   {
+    "name": "loginSuccessIncludesSessionId",
+    "description": "login success includes the server session UUID",
+    "versions": [
+      "26.2",
+      "26.2"
+    ]
+  },
+  {
     "name": "mcDataHasEntityMetadata",
     "description": "Entity Metadata is defined in mcdata",
     "versions": [
@@ -1021,6 +1037,14 @@
     "versions": [
       "1.8",
       "1.12.2"
+    ]
+  },
+  {
+    "name": "setCursorItemPacket",
+    "description": "server sends authoritative cursor contents in set_cursor_item",
+    "versions": [
+      "1.21.3",
+      "latest"
     ]
   },
   {
