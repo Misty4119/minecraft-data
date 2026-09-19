@@ -47,6 +47,22 @@ function genProtoSchema (createPacketMap) {
 }
 
 function visitor (key, value) {
+  // protodef-yaml 1.5 emits an empty field name for an anonymous container
+  // member (the `?:` YAML form). Keep the canonical ProtoDef representation
+  // explicit so schema validation and runtimes agree on the field shape.
+  if (Array.isArray(value) && value[0] === 'container' && Array.isArray(value[1])) {
+    if (value[1].length === 1 && value[1][0].name === '' &&
+      Array.isArray(value[1][0].type) && value[1][0].type[0] === 'option') {
+      // An optional array element is represented by a one-field anonymous
+      // container in the YAML parser. The array itself should carry the
+      // option type; trying to inline it as an anonymous field is rejected
+      // by protodef's compiled serializer.
+      return value[1][0].type
+    }
+    value[1] = value[1].map(field => field.name === ''
+      ? { anon: true, type: field.type }
+      : field)
+  }
   // Convert decimal to hex in protocol.json for packet mapper fields
   if ((key === 'packet') && (value?.[1]?.[0]?.name === 'name')) {
     const mapper = value[1][0].type[1].mappings

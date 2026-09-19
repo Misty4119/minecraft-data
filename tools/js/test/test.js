@@ -12,10 +12,13 @@ const Validator = require('protodef-validator')
 Error.stackTraceLimit = 0
 
 // The suite used to take ~3min, almost all of it in protodef-validator < 1.5.0 (quadratic
-// dataType validation) and Ajv's O(n^2) uniqueItems. Fail if it ever gets that slow again.
+// dataType validation) and Ajv's O(n^2) uniqueItems. Native 26.3 adds a
+// protocol/data set to the validation matrix, so keep headroom for that
+// bounded increase while still catching a regression to the old multi-minute
+// runtime.
 after('the test suite stays fast', function () {
   const ms = performance.now() // measured from process start
-  assert.ok(ms < 40 * 1000, `the test suite took ${Math.round(ms)}ms, expected < 40s`)
+  assert.ok(ms < 60 * 1000, `the test suite took ${Math.round(ms)}ms, expected < 60s`)
 })
 
 const data = ['attributes', 'biomes', 'commands', 'instruments', 'items', 'materials', 'blocks', 'blockCollisionShapes', 'recipes', 'windows', 'entities', 'protocol', 'version', 'effects', 'enchantments', 'language', 'foods', 'particles', 'blockLoot', 'entityLoot', 'mapIcons', 'tints', 'blockMappings', 'sounds', 'blockStates']
@@ -41,6 +44,10 @@ require('./version_iterator')(function (p, versionString) {
             const validator = new Validator()
 
             instance.types.LatinString = 'native' // TODO: Update protodef validator
+            // Minecraft 26.3 adds a native compact movement type used by the
+            // relative entity movement packets. It is implemented by the
+            // protocol runtime rather than expanded in protocol.json.
+            validator.addType('entityDelta')
             validator.addType('entityMetadataItem', require('../../../schemas/protocol_types/entity_metadata_item.json'))
             validator.addType('entityMetadataLoop', require('../../../schemas/protocol_types/entity_metadata_loop.json'))
             validator.validateProtocol(instance)
