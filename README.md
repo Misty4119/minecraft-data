@@ -14,6 +14,26 @@ Supports
 * Minecraft bedrock version 0.14, 0.15, 1.0, 1.16.201, 1.16.210, 1.16.220, 1.17.0, 1.17.10, 1.17.30, 1.17.40, 1.18.0, 1.18.11, 1.18.30, 1.19.1, 1.19.10, 1.19.20, 1.19.21, 1.19.30, 1.19.40, 1.19.50, 1.19.60, 1.19.62, 1.19.63, 1.19.70, 1.19.80, 1.20.0, 1.20.10, 1.20.30, 1.20.40, 1.20.50, 1.20.61, 1.20.71, 1.20.80, 1.21.0, 1.21.2, 1.21.20, 1.21.30, 1.21.42, 1.21.50, 1.21.60, 1.21.70, 1.21.80, 1.21.90, 1.21.93, 1.21.100, 1.21.111, 1.21.120, 1.21.124, 1.21.130, 1.26.0, 1.26.10, 1.26.20, 1.26.30, 1.26.40, 1.26.45
 <!--NEXT BEDROCK-->
 
+## Repository status and guides
+
+The version list above describes the data in this source tree. The latest published npm wrappers may predate the Java 26.2 and 26.3 commits in this fork; use a sibling checkout or a published release that explicitly includes those versions when reproducing the current source tree.
+
+- [Agent instructions](AGENTS.md) explain source-of-truth and generation rules.
+- [Repository context](CONTEXT.md) maps the data flow and cross-repository dependencies.
+- [Security policy](SECURITY.md) covers untrusted data, generators, and disclosure.
+- [Code of Conduct](CODE_OF_CONDUCT.md) describes community standards.
+- [Architecture](doc/ARCHITECTURE.md), [new-version procedure](doc/add-data-new-version.md), [protocol guide](doc/protocol.md), and [Bedrock guide](doc/bedrock.md) contain maintainer details.
+
+### Maintainer quick start
+
+The root is not an npm package. Run maintenance commands from tools/js:
+
+    cd tools/js
+    npm install
+    npm run lint
+    npm test
+
+Use npm run build after editing protocol YAML. Generated protocol.json is build output; do not edit it as the source. Record the extractor or generator revision and source checksum for new data.
 ## Wrappers
 
 Minecraft-data is language independent, you can use it with these language specific modules :
