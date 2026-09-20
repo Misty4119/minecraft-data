@@ -1280,35 +1280,35 @@
          5: component
          6: optional_component
          7: item_stack
-         8: block_state
-         9: optional_block_state
-         10: boolean
-         11: particle
-         12: particles
-         13: rotations
-         14: block_pos
-         15: optional_block_pos
-         16: direction
-         17: optional_living_entity_reference
-         18: optional_global_pos
-         19: villager_data
-         20: optional_unsigned_int
-         21: pose
-         22: cat_variant
-         23: cat_sound_variant
-         24: chicken_variant
-         25: chicken_sound_variant
-         26: cow_variant
-         27: cow_sound_variant
-         28: wolf_variant
-         29: wolf_sound_variant
-         30: frog_variant
-         31: pig_variant
-         32: pig_sound_variant
-         33: zombie_nautilus_variant
+         8: boolean
+         9: rotations
+         10: block_pos
+         11: optional_block_pos
+         12: direction
+         13: optional_living_entity_reference
+         14: block_state
+         15: optional_block_state
+         16: particle
+         17: particles
+         18: villager_data
+         19: optional_unsigned_int
+         20: pose
+         21: cat_variant
+         22: cat_sound_variant
+         23: chicken_variant
+         24: chicken_sound_variant
+         25: cow_variant
+         26: cow_sound_variant
+         27: wolf_variant
+         28: wolf_sound_variant
+         29: frog_variant
+         30: pig_variant
+         31: pig_sound_variant
+         32: zombie_nautilus_variant
+         33: optional_global_pos
          34: painting_variant
-         35: armadillo_state
-         36: sniffer_state
+         35: sniffer_state
+         36: armadillo_state
          37: weathering_copper_golem_state
          38: copper_golem_state
          39: vector3
@@ -2395,6 +2395,7 @@
       explosionParticle: Particle
       sound: ItemSoundHolder
       blockParticles: ExplosionParticleEntry[]varint
+      playSound: bool
    packet_unload_chunk:   
       chunkZ: i32
       chunkX: i32
@@ -2486,10 +2487,10 @@
    packet_update_light:   
       chunkX: varint
       chunkZ: varint
-      skyLightMask: i64[]varint
-      blockLightMask: i64[]varint
-      emptySkyLightMask: i64[]varint
-      emptyBlockLightMask: i64[]varint
+      skyLightMask: ByteArray
+      blockLightMask: ByteArray
+      emptySkyLightMask: ByteArray
+      emptyBlockLightMask: ByteArray
       skyLight: []varint
          _: u8[]varint
       blockLight: []varint
@@ -2595,7 +2596,9 @@
       windowTitle: anonymousNbt
    packet_open_sign_entity:   
       location: position
-      isFrontText: bool
+      slot: varint =>
+         0: back
+         1: front
    packet_ping:   
       id: i32
    packet_ping_response:   
@@ -2926,17 +2929,9 @@
          4: leave
       _: mode ?
          if add:         
-            name: anonymousNbt
-            flags: [
-               "bitflags",
-               {
-                  "type": "u8",
-                  "flags": [
-                     "friendly_fire",
-                     "see_friendly_invisible"
-                  ]
-               }
-            ]
+            displayName: anonymousNbt
+            prefix: anonymousNbt
+            suffix: anonymousNbt
             nameTagVisibility: varint =>
                0: always
                1: never
@@ -2947,11 +2942,7 @@
                1: never
                2: push_other_teams
                3: push_own_team
-            formatting: varint
-            prefix: anonymousNbt
-            suffix: anonymousNbt
-         if change:         
-            name: anonymousNbt
+            color?: varint
             flags: [
                "bitflags",
                {
@@ -2962,6 +2953,10 @@
                   ]
                }
             ]
+         if change:
+            displayName: anonymousNbt
+            prefix: anonymousNbt
+            suffix: anonymousNbt
             nameTagVisibility: varint =>
                0: always
                1: never
@@ -2972,9 +2967,17 @@
                1: never
                2: push_other_teams
                3: push_own_team
-            formatting: varint
-            prefix: anonymousNbt
-            suffix: anonymousNbt
+            color?: varint
+            flags: [
+               "bitflags",
+               {
+                  "type": "u8",
+                  "flags": [
+                     "friendly_fire",
+                     "see_friendly_invisible"
+                  ]
+               }
+            ]
          default: void
       players: mode ?
          if add: string[]varint
@@ -3648,7 +3651,7 @@
          0: main_hand
          1: off_hand
       location: lpVec3
-      sneaking: bool
+      usingSecondaryAction: bool
    packet_generate_structure:   
       location: position
       levels: varint
@@ -3818,11 +3821,13 @@
       message: string
    packet_update_sign:   
       location: position
-      isFrontText: bool
       text1: string
       text2: string
       text3: string
       text4: string
+      slot: varint =>
+         0: back
+         1: front
    packet_spectate_entity:   
       entityId: varint
    packet_arm_animation:   
@@ -3918,7 +3923,7 @@
          0x3c: update_structure_block
          0x3d: set_test_block
          0x3e: update_sign
-         0x3f: arm_animation
+         0x3f: spectator_action
          0x40: spectate
          0x41: test_instance_block_action
          0x42: block_place
@@ -3987,15 +3992,13 @@
          if update_structure_block: packet_update_structure_block
          if set_test_block: packet_set_test_block
          if update_sign: packet_update_sign
-         if spectate_entity: packet_spectate_entity
-         if arm_animation: packet_arm_animation
+         if spectator_action: packet_spectator_action
          if spectate: packet_spectate
          if test_instance_block_action: packet_test_instance_block_action
          if block_place: packet_block_place
          if use_item: packet_use_item
          if custom_click_action: packet_common_custom_click_action
          if punch: packet_punch
-         if spectator_action: packet_spectator_action
    packet_punch: void
    packet_spectator_action:   
       entityId?: varint

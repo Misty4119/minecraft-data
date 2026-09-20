@@ -52,4 +52,23 @@ describe('Minecraft Java 26.3 data integrity', () => {
     assert.ok(shapes.shapes && typeof shapes.shapes === 'object')
     assert.ok(Object.values(shapes.shapes).every(shape => Array.isArray(shape)))
   })
+
+  it('matches the 26.3 team, explosion, and interaction wire fields', () => {
+    const protocol = read('protocol')
+    const teamAddFields = protocol.play.toClient.types.packet_teams[1][2].type[1].fields.add[1].map(({ name }) => name)
+    const explosionFields = protocol.play.toClient.types.packet_explosion[1].map(({ name }) => name)
+    const interactionFields = protocol.play.toServer.types.packet_use_entity[1].map(({ name }) => name)
+
+    assert.deepStrictEqual(teamAddFields, [
+      'displayName',
+      'prefix',
+      'suffix',
+      'nameTagVisibility',
+      'collisionRule',
+      'color',
+      'flags'
+    ])
+    assert.strictEqual(explosionFields.at(-1), 'playSound')
+    assert.strictEqual(interactionFields.at(-1), 'usingSecondaryAction')
+  })
 })
