@@ -47,6 +47,8 @@ jobs:
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         repository: PrismarineJS/bedrock-protocol
+        # Tests Bedrock 1.26.45; advance after matching data is added and the full lane passes.
+        ref: 217d6005798342c7f35e4bd309f0de629ba5607a
         path: bedrock-protocol
     # I forget the correct install order, do both
     - name: Install bedrock-protocol
