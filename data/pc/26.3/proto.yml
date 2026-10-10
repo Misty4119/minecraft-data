@@ -353,7 +353,7 @@
          if use_cooldown:         
             seconds: f32
             cooldownGroup?: string
-         if damage_resistant: string
+         if damage_resistant: IDSet
          if tool:         
             rules: []varint
                blocks: IDSet
@@ -529,7 +529,7 @@
                   }
                ]
                if false: string
-         if provides_banner_patterns: string
+         if provides_banner_patterns: IDSet
          if recipes: anonymousNbt
          if lodestone_tracker:         
             globalPosition?: GlobalPos
@@ -544,7 +544,10 @@
             layers: BannerPatternLayer[]varint
          if base_color: DyeColor
          if pot_decorations:         
-            decorations: varint[]varint
+            back?: ItemStackTemplate
+            left?: ItemStackTemplate
+            right?: ItemStackTemplate
+            front?: ItemStackTemplate
          if container:         
             contents: []varint
                ?: ItemStackTemplate
@@ -554,6 +557,7 @@
                value: string
          if bees:         
             bees: []varint
+               entityType: varint
                nbtData: anonymousNbt
                ticksInHive: varint
                minTicksInHive: varint
@@ -685,9 +689,31 @@
             minValue?: string
             maxValue?: string
    ExactComponentMatcher: SlotComponent[]varint
+   DataComponentPredicateType: varint =>
+      0: damage
+      1: enchantments
+      2: stored_enchantments
+      3: potion_contents
+      4: custom_data
+      5: container
+      6: bundle_contents
+      7: firework_explosion
+      8: fireworks
+      9: writable_book_content
+      10: written_book_content
+      11: attribute_modifiers
+      12: trim
+      13: jukebox_playable
+      14: villager/variant
+   PartialComponentMatcher:
+      isPredicate: bool
+      type: isPredicate ?
+         if true: DataComponentPredicateType
+         if false: SlotComponentType
+      data: anonymousNbt
    DataComponentMatchers:   
       exactMatchers: ExactComponentMatcher
-      partialMatchers: varint[]varint
+      partialMatchers: PartialComponentMatcher[]varint
    ItemBlockPredicate:   
       blockSet?: [
          "registryEntryHolderSet",
@@ -727,6 +753,7 @@
          if clear_all_effects: void
          if teleport_randomly:         
             diameter: f32
+            directionalParticles: bool
          if play_sound:         
             sound: ItemSoundHolder
    ArmorTrimMaterial:   
@@ -1468,9 +1495,7 @@
       body?: string
       cape?: string
       elytra?: string
-      model?: varint =>
-         0: wide
-         1: slim
+      model?: bool
    GameRule:   
       name: string
       value: string

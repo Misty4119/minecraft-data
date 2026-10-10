@@ -6,14 +6,17 @@ on:
   pull_request:
     branches: [ master ]
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 14
 
     steps:
-    - name: Use Node.js 22.x
-      uses: actions/setup-node@v1
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
       with:
         node-version: 24
     # Old versions of bedrock use old libssl that Ubuntu no longer ships with; need manual install
@@ -22,7 +25,7 @@ jobs:
         wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb
         sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb
     - name: Checkout node-minecraft-data
-      uses: actions/checkout@v2
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         repository: PrismarineJS/node-minecraft-data
         submodules: recursive
@@ -30,7 +33,7 @@ jobs:
     # Erase the submodule for minecraft-data with a checkout of the current minecraft-data repo
     - run: rm -rf node-mcdata/minecraft-data
     - name: Checkout minecraft-data
-      uses: actions/checkout@v2
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         path: node-mcdata/minecraft-data
     # Now install local node-minecraft-data. Running "prepare" should gen data and types
@@ -41,7 +44,7 @@ jobs:
         npm run prepare
         npm link
     - name: Checkout bedrock-protocol
-      uses: actions/checkout@v2
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         repository: PrismarineJS/bedrock-protocol
         path: bedrock-protocol

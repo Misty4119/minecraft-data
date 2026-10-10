@@ -3,7 +3,7 @@
 [![Discord](https://img.shields.io/badge/chat-on%20discord-brightgreen.svg)](https://discord.gg/GsEFRM8)
 [![Gitter](https://img.shields.io/badge/chat-on%20gitter-brightgreen.svg)](https://gitter.im/PrismarineJS/general)
 [![Irc](https://img.shields.io/badge/chat-on%20irc-brightgreen.svg)](https://irc.gitter.im/)
-[![Build Status](https://github.com/PrismarineJS/minecraft-data/workflows/CI/badge.svg)](https://github.com/PrismarineJS/minecraft-data/actions?query=workflow%3A%22CI%22)
+[![Build Status](https://github.com/Misty4119/minecraft-data/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/Misty4119/minecraft-data/actions/workflows/ci.yml)
 
 Language independent module providing minecraft data for minecraft clients, servers and libraries.
 
@@ -21,6 +21,7 @@ The version list above describes the data in this source tree. The latest publis
 - [Agent instructions](AGENTS.md) explain source-of-truth and generation rules.
 - [Repository context](CONTEXT.md) maps the data flow and cross-repository dependencies.
 - [Security policy](SECURITY.md) covers untrusted data, generators, and disclosure.
+- [Contributing](CONTRIBUTING.md) covers source edits, generation, checks, and release behavior.
 - [Code of Conduct](CODE_OF_CONDUCT.md) describes community standards.
 - [Architecture](doc/ARCHITECTURE.md), [new-version procedure](doc/add-data-new-version.md), [protocol guide](doc/protocol.md), and [Bedrock guide](doc/bedrock.md) contain maintainer details.
 
@@ -81,12 +82,12 @@ Data provided:
 | Features | This can be used to check is a specific feature is available in the current Minecraft version. This is usually only required for handling version-specific functionality.
 | Sounds | For versions that use a sound id over the network (1.9+) this provides mappings between network sound id and sound name. 
 
-See more information about this data in the [documentation](http://prismarinejs.github.io/minecraft-data/)
+See more information about this data in the [upstream generated documentation](https://prismarinejs.github.io/minecraft-data/). It may differ from this fork's latest source data.
 
 ## Documentation
 
  * See [doc/history.md](doc/history.md)
- * [Documentation generated using the json schemas and docson](http://prismarinejs.github.io/minecraft-data)
+ * [Upstream documentation generated using the JSON schemas and docson](https://prismarinejs.github.io/minecraft-data/)
  * [Textual documentation of the recipe format](doc/recipes.md)
 
 ## Projects using minecraft-data
@@ -109,7 +110,7 @@ These are the projects that use minecraft-data:
 
 ### Java Edition
 
-The recommended way to extract the data is documented at [add-data-new-version.md](https://github.com/PrismarineJS/minecraft-data/blob/master/doc/add-data-new-version.md).
+The recommended way to extract the data is documented at [add-data-new-version.md](doc/add-data-new-version.md).
 
 The [minecraft-data-auto-updater](https://github.com/PrismarineJS/minecraft-data-auto-updater) calls [minecraft-data-generator-server](https://github.com/PrismarineJS/minecraft-data-generator-server).
 
@@ -153,14 +154,14 @@ Minecraft data provides scripts to audit the data, they can be useful to check t
  * [audit_recipes](tools/js/test/audit_recipes.js)
  * [audit_shapes](tools/js/test/audit_shapes.js)
 
-Minecraft data also provides json schemas in enums_schemas/ that are used in
-test/test.js to check the json file are valid relative to these schemas.
+Minecraft data also provides JSON schemas in [schemas/](schemas/) that are used in
+[tools/js/test/test.js](tools/js/test/test.js) to check that JSON files satisfy these schemas.
 These schemas can also be used to understand better how the json files are
 formatted in order to use it.
 
 ## Contribute
 
-Please read https://github.com/PrismarineJS/prismarine-contribute
+Please read the [contribution guide](CONTRIBUTING.md) and the [PrismarineJS contribution guide](https://github.com/PrismarineJS/prismarine-contribute).
 
 ## License
 

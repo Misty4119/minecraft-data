@@ -3,29 +3,43 @@ on:
   push:
     branches:
       - master
+permissions:
+  contents: write
+
 jobs:
   tag:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions-ecosystem/action-regex-match@v2
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+    - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       id: regex-match
       with:
-        text: ${{ github.event.head_commit.message }}
-        regex: '^Release ([0-9]+\.[0-9]+\.[0-9]+)'
+        script: |
+          const match = context.payload.head_commit.message.match(/^Release ([0-9]+\.[0-9]+\.[0-9]+)/)
+          core.setOutput('match', match ? match[0] : '')
+          core.setOutput('group1', match ? match[1] : '')
     - name: Create Release
       if: steps.regex-match.outputs.match != ''
       id: create_release
-      uses: actions/create-release@v1
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        RELEASE_VERSION: ${{ steps.regex-match.outputs.group1 }}
       with:
-        tag_name: ${{ steps.regex-match.outputs.group1 }}
-        release_name: Release ${{ steps.regex-match.outputs.group1 }}
-        body: ${{ steps.regex-match.outputs.group1 }}
-        draft: false
-        prerelease: false
-    - uses: peter-evans/repository-dispatch@v1
+        script: |
+          const version = process.env.RELEASE_VERSION
+          const { data } = await github.rest.repos.createRelease({
+            ...context.repo,
+            tag_name: version,
+            name: `Release ${version}`,
+            body: version,
+            target_commitish: context.sha,
+            draft: false,
+            prerelease: false
+          })
+          core.setOutput('id', data.id)
+          core.setOutput('html_url', data.html_url)
+          core.setOutput('upload_url', data.upload_url)
+    - uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # v4.0.1
       if: ${{ steps.regex-match.outputs.match != '' }}
       with:
         token: ${{ secrets.PAT_PASSWORD }}
