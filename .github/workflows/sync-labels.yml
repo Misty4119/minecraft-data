@@ -1,0 +1,50 @@
+name: Sync Labels
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const fs = require('node:fs')
+            const labels = JSON.parse(fs.readFileSync('.github/labels.json', 'utf8'))
+            const names = new Set()
+            for (const label of labels) {
+              if (typeof label.name !== 'string' || !label.name.trim() ||
+                  typeof label.description !== 'string' || !/^[0-9a-f]{6}$/i.test(label.color) ||
+                  names.has(label.name.toLowerCase())) {
+                throw new Error('Invalid or duplicate label in manifest')
+              }
+              names.add(label.name.toLowerCase())
+            }
+            const existing = await github.paginate(github.rest.issues.listLabelsForRepo, {
+              ...context.repo,
+              per_page: 100
+            })
+            const byName = new Map(existing.map(label => [label.name.toLowerCase(), label]))
+            for (const label of labels) {
+              const current = byName.get(label.name.toLowerCase())
+              if (current) {
+                await github.rest.issues.updateLabel({
+                  ...context.repo,
+                  name: current.name,
+                  new_name: label.name,
+                  color: label.color,
+                  description: label.description
+                })
+              } else {
+                await github.rest.issues.createLabel({ ...context.repo, ...label })
+              }
+            }
+            // Labels absent from the manifest are left untouched.

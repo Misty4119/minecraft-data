@@ -71,4 +71,80 @@ describe('Minecraft Java 26.3 data integrity', () => {
     assert.strictEqual(explosionFields.at(-1), 'playSound')
     assert.strictEqual(interactionFields.at(-1), 'usingSecondaryAction')
   })
+
+  it('matches the official 26.3 hashed-item component stream codecs', () => {
+    const protocol = read('protocol')
+    const slotComponent = protocol.types.SlotComponent[1]
+    const slotFields = Object.fromEntries(slotComponent.map(({ name, type }) => [name, type]))
+    const componentTypes = slotFields.data[1].fields
+
+    assert.strictEqual(componentTypes.damage_resistant, 'IDSet')
+    assert.strictEqual(componentTypes.provides_banner_patterns, 'IDSet')
+    assert.deepStrictEqual(
+      componentTypes.pot_decorations[1].map(({ name, type }) => [name, type]),
+      [
+        ['back', ['option', 'ItemStackTemplate']],
+        ['left', ['option', 'ItemStackTemplate']],
+        ['right', ['option', 'ItemStackTemplate']],
+        ['front', ['option', 'ItemStackTemplate']]
+      ]
+    )
+
+    const effectFields = protocol.types.ItemConsumeEffect[1]
+    const variants = effectFields.find(({ anon }) => anon).type[1].fields
+    assert.deepStrictEqual(
+      variants.teleport_randomly[1].map(({ name, type }) => [name, type]),
+      [['diameter', 'f32'], ['directionalParticles', 'bool']]
+    )
+  })
+
+  it('encodes the 26.3 player skin model as a boolean flag', () => {
+    const protocol = read('protocol')
+    const model = protocol.types.PlayerSkinPatch[1].find(({ name }) => name === 'model')
+    assert.deepStrictEqual(model.type, ['option', 'bool'])
+  })
+
+  it('writes each bee occupant as entity type ID, NBT, and two hive tick counts', () => {
+    const protocol = read('protocol')
+    const slotFields = Object.fromEntries(protocol.types.SlotComponent[1].map(({ name, type }) => [name, type]))
+    const bees = slotFields.data[1].fields.bees[1][0].type[1].type[1]
+
+    assert.deepStrictEqual(
+      bees.map(({ name, type }) => [name, type]),
+      [
+        ['entityType', 'varint'],
+        ['nbtData', 'anonymousNbt'],
+        ['ticksInHive', 'varint'],
+        ['minTicksInHive', 'varint']
+      ]
+    )
+  })
+
+  it('preserves exact and partial data-component matcher stream payloads', () => {
+    const protocol = read('protocol')
+    const matcher = protocol.types.PartialComponentMatcher
+    const matcherFields = matcher[1].map(({ name, type }) => [name, type])
+    const typeIds = protocol.types.DataComponentPredicateType[1].mappings
+
+    assert.deepStrictEqual(matcherFields, [
+      ['isPredicate', 'bool'],
+      ['type', ['switch', {
+        compareTo: 'isPredicate',
+        fields: {
+          true: 'DataComponentPredicateType',
+          false: 'SlotComponentType'
+        }
+      }]],
+      ['data', 'anonymousNbt']
+    ])
+    assert.deepStrictEqual(Object.values(typeIds), [
+      'damage', 'enchantments', 'stored_enchantments', 'potion_contents', 'custom_data',
+      'container', 'bundle_contents', 'firework_explosion', 'fireworks', 'writable_book_content',
+      'written_book_content', 'attribute_modifiers', 'trim', 'jukebox_playable', 'villager/variant'
+    ])
+    assert.deepStrictEqual(protocol.types.DataComponentMatchers[1].map(({ name, type }) => [name, type]), [
+      ['exactMatchers', 'ExactComponentMatcher'],
+      ['partialMatchers', ['array', { countType: 'varint', type: 'PartialComponentMatcher' }]]
+    ])
+  })
 })
